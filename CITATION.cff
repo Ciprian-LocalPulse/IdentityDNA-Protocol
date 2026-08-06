@@ -1,0 +1,11 @@
+cff-version: 1.2.0
+message: "If you use or reference IdentityDNA Protocol in academic work, please cite it as below."
+title: "IdentityDNA Protocol: A Next-Generation Identity Authentication Protocol Based on Deterministic Identity Streams"
+authors:
+  - family-names: "Pleșca"
+    given-names: "Ciprian Ștefan"
+version: "0.1.0-alpha"
+date-released: 2026-08-04
+url: "https://identitydna.org"
+repository-code: "https://github.com/IdentityDNA/IdentityDNA-Protocol"
+license: "LicenseRef-IdentityDNA-Proprietary"
