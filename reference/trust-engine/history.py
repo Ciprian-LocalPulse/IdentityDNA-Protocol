@@ -37,7 +37,11 @@ class TrustHistory:
             w = lam ** i
             num += w * (1.0 if match else 0.0)
             den += w
-        return 100.0 * num / den
+        score = 100.0 * num / den
+        # defensive clamp: floating-point summation can drift a hair
+        # outside [0,100] (e.g. 100.00000000000001); callers rely on the
+        # invariant that S_history is always in-range.
+        return max(0.0, min(100.0, score))
 
 
 class PersistentTrustHistory(TrustHistory):

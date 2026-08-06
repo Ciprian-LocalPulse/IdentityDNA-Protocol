@@ -64,3 +64,19 @@ cd server && uvicorn api:app --reload
 - Fuzz/property/stress/performance test suites (only unit + one
   integration test exist)
 - Desktop/browser/mobile client implementations
+
+## Testing
+
+```bash
+python3 -m pytest ../tests/unit -v        # 30 example-based tests
+python3 -m pytest ../tests/property -v    # 45 property-based/fuzz tests (Hypothesis)
+python3 -m pytest ../tests -v             # everything (75 tests)
+```
+
+The property-based suite (`tests/property/`) found two real bugs during
+development that the example-based unit tests missed entirely — a
+remote-DoS-capable crash on malformed client input, and a floating-point
+boundary issue. See `CHANGELOG.md` for details. This is the main
+practical argument for property-based testing on a protocol
+implementation: it exercises the input space an actual adversary would
+probe, not just the well-formed cases a developer thinks to write by hand.

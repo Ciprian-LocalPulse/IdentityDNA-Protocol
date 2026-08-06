@@ -54,9 +54,26 @@ def normalize_behavior(raw: dict[str, Any]) -> bytes:
     a fixed digest. Raw timing arrays are reduced to summary statistics —
     mean, stddev, and a coarse histogram — never transmitted/stored as
     raw per-keystroke timing (which can itself be a biometric identifier
-    with its own privacy weight)."""
-    cadence = raw.get("typing_cadence_ms", [])
-    pointer_entropy = float(raw.get("pointer_entropy", 0.0))
+    with its own privacy weight).
+
+    Defensive/fail-closed: client-supplied input is untrusted (threat-model.md
+    §2, "the client device is fully untrusted"). A malformed
+    `typing_cadence_ms` (wrong type, non-numeric elements, etc.) must
+    degrade to the empty/neutral case rather than raise -- an unhandled
+    exception here is a remote DoS vector against the Verifier, not just
+    a client-side data-quality issue. Found via property-based fuzzing,
+    see CHANGELOG.md.
+    """
+    cadence_raw = raw.get("typing_cadence_ms", [])
+    if isinstance(cadence_raw, (list, tuple)):
+        cadence = [x for x in cadence_raw if isinstance(x, (int, float)) and not isinstance(x, bool)]
+    else:
+        cadence = []
+
+    try:
+        pointer_entropy = float(raw.get("pointer_entropy", 0.0))
+    except (TypeError, ValueError):
+        pointer_entropy = 0.0
 
     if cadence:
         mean = sum(cadence) / len(cadence)
@@ -71,8 +88,13 @@ def normalize_behavior(raw: dict[str, Any]) -> bytes:
 
 def normalize_context(raw: dict[str, Any]) -> bytes:
     """Normalize contextual signals (timezone, locale). Coarse by design —
-    context is a corroborating signal, not a fingerprinting vector."""
-    tz = int(raw.get("tz_offset_min", 0))
+    context is a corroborating signal, not a fingerprinting vector.
+    Defensive/fail-closed against malformed client input, same rationale
+    as normalize_behavior above."""
+    try:
+        tz = int(raw.get("tz_offset_min", 0))
+    except (TypeError, ValueError):
+        tz = 0
     locale = str(raw.get("locale", "unknown"))
     summary = f"tz={tz}|locale={locale}"
     return hash_blake3(summary.encode("utf-8"), domain="IDP-CONTEXT-v1")

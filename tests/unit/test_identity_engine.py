@@ -44,3 +44,18 @@ def test_weights_must_sum_to_one():
     with pytest.raises(AssertionError):
         compile_identity_vector(DEVICE, BEHAVIOR, CONTEXT, "salt-a",
                                  weights={"device": 0.9, "behavior": 0.9, "context": 0.2})
+
+
+def test_malformed_typing_cadence_does_not_crash():
+    """Regression test: normalize_behavior() must not raise when
+    typing_cadence_ms is not a list (e.g. a malicious/buggy client sends
+    a string). Found via property-based fuzzing -- see CHANGELOG.md."""
+    malformed_behavior = {"typing_cadence_ms": "0", "pointer_entropy": 0.5}
+    iv = compile_identity_vector(DEVICE, malformed_behavior, CONTEXT, "salt-a")
+    assert len(iv.vector) == 256  # degrades gracefully instead of crashing
+
+
+def test_malformed_context_tz_does_not_crash():
+    malformed_context = {"tz_offset_min": "not-a-number", "locale": "ro-RO"}
+    iv = compile_identity_vector(DEVICE, BEHAVIOR, malformed_context, "salt-a")
+    assert len(iv.vector) == 256
