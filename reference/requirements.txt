@@ -10,4 +10,4 @@ uvicorn>=0.29               # ASGI server to run api.py
 pydantic>=2.6               # request/response models for api.py
 click>=8.1                  # cli/identitydna
 pytest>=8.0                 # tests/unit, tests/integration
-hypothesis>=6.100        # tests/property (property-based / fuzz testing)
+hypothesis>=6.165.0        # tests/property (property-based / fuzz testing)
