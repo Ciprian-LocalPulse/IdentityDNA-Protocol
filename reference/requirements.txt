@@ -2,7 +2,7 @@
 # Install: pip install -r reference/requirements.txt --break-system-packages
 
 cryptography>=42.0        # AEAD (ChaCha20-Poly1305), HKDF, HKDF-Expand
-pynacl>=1.5                # Ed25519 signatures, X25519 ECDH
+pynacl>=1.6.2                # Ed25519 signatures, X25519 ECDH
 argon2-cffi>=23.1          # Argon2id (human-secret KDF only, RFC-0001 §11.1)
 blake3>=0.4                # BLAKE3-256 hashing (falls back to SHA3-256 if absent)
 fastapi>=0.110             # reference/server/api.py
