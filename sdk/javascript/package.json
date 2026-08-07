@@ -1,0 +1,24 @@
+{
+  "name": "@identitydna/sdk",
+  "version": "1.0.0",
+  "description": "IdentityDNA Protocol (IDP) reference client SDK, per RFC-0001. Byte-for-byte interoperable with the Python reference server (reference/server/api.py) -- verified in tests/interop/.",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "node --import tsx --test src/__tests__/*.test.ts",
+    "demo": "tsx src/demo/demoHttpClient.ts",
+    "fixtures": "tsx src/interop/printFixtures.ts"
+  },
+  "dependencies": {
+    "@noble/curves": "^2.0.1",
+    "@noble/hashes": "^2.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.0"
+  },
+  "license": "ISC"
+}
