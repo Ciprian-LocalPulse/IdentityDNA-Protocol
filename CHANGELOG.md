@@ -74,3 +74,41 @@
 
 Install: `pip install hypothesis` (added to `reference/requirements.txt`).
 Run: `python3 -m pytest tests/property -v`
+
+## Phase 1.3 — TypeScript/JavaScript SDK + cross-language interop
+
+### Added
+- `sdk/javascript/` — a real, working TypeScript client SDK (`@noble/curves`,
+  `@noble/hashes`), mirroring the Python reference module-for-module:
+  crypto primitives, entropy normalizer, Identity Vector compiler,
+  client-side handshake builder (`ClientSession`). 17 passing unit tests
+  (`npm test`, Node's built-in test runner).
+- `tests/interop/test_ts_python_parity.py` — automated regression test
+  asserting byte-identical cryptographic output between the TS and
+  Python implementations for the same input (hashes, HKDF, normalization
+  digests, full Identity Vector). Prevents silent cross-language drift.
+- `sdk/javascript/src/demo/demoHttpClient.ts` — a TypeScript client that
+  completes a real handshake against the Python FastAPI reference
+  server over HTTP, including a genuine Ed25519 signature generated in
+  TypeScript and verified server-side in Python. Confirmed the same
+  DENY → STEP_UP trust-score progression as the Python CLI demo (shared
+  SQLite persistence).
+
+### Fixed (found via the interop parity check, before ever shipping)
+- `hkdfExpandVector` initially used full extract-then-expand HKDF
+  (`@noble/hashes`'s `hkdf()`), silently producing a *different but
+  still valid-looking* Identity Vector than Python's HKDF-**Expand**-only
+  construction (`cryptography`'s `HKDFExpand`). Fixed to use
+  `@noble/hashes/hkdf.js`'s `expand()` directly. This class of bug is
+  exactly what byte-for-byte interop testing is for — the output would
+  have looked completely plausible (valid unit vector, valid digest) in
+  isolation, and only comparison against the reference implementation
+  revealed the mismatch.
+- The `iv_digest` hash input must be one flat concatenated byte blob
+  (matching Python's `b"".join(...)`), not 256 individually
+  length-prefixed parts (the normal multi-part domain-separation
+  pattern used everywhere else). Same fix category: silent, plausible,
+  wrong.
+
+See `sdk/javascript/README.md` for the full writeup and how to run the
+cross-language demo yourself.
